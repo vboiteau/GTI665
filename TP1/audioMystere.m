@@ -1,4 +1,4 @@
-%{[s1,F1] = audioread('media/mystere1.wav');
+[s1,F1] = audioread('media/mystere1.wav');
 figure(1),plot(s1), title('Mystere 1');
 xlim([0 F1]);
 duration1 = length(s1)/F1; 
