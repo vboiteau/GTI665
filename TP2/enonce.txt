@@ -1,0 +1,390 @@
+École de technologie supérieure
+Trimestre
+Département de génie logiciel et des TI Chargé de cours
+Préalable
+Crédits
+Version
+
+Automne 2017
+J-F Franche
+MAT415
+3
+1.0
+
+GTI664 Applications multimédias et Internet
+Deuxième Travail Pratique
+Sujet : Introduction aux techniques de tatouage numérique
+
+Description
+Ce laboratoire a pour objectif de vous initier au domaine du tatouage numérique
+appliqué aux images. Dans le cadre de ce laboratoire, vous devez implémenter
+trois algorithmes de tatouage numérique : (1) un algorithme simple appliqué dans
+le domaine spatial; (2) un algorithme plus complexe, l’algorithme PatchWork,
+appliqué lui aussi dans le domaine spatial; et (3) un algorithme appliqué dans le
+domaine fréquentiel, l’algorithme NEC.
+Pour chacun de ces algorithmes, vous devez implémenter : un module
+permettant de tatouer une image (ou une clé, c’est selon le contexte); un module
+permettant d’attaquer une image tatouée; et un module permettant de retrouver
+le tatouage incrusté dans une image. Vous devez implémenter ces modules
+dans MATLAB afin de poursuivre votre apprentissage de ce
+langage/environnement de développement. Vous devez attaquer chaque image
+avec quatre types d’attaques :
+
+
+
+
+
+AT1 : Faible compression
+AT2 : Filtrage, addition de bruits ou correction gamma
+AT3 : Redimensionnement de l’image ou rotation
+AT4 : Recadrage (cropping en anglais)
+
+Partie 1 – Implémentation d’un algorithme simple de tatouage
+numérique dans le domaine spatial
+Les premiers algorithmes développés pour effectuer du tatouage numérique sur
+les images étaient simples (appliqués dans le domaine spatial), peu robustes
+contre les attaques (volontaires ou involontaires), et ne respectaient pas le
+principe de Kerchkoff qui veut que la sécurité réside dans le secret de la clé et
+non dans le secret de l’algorithme.
+Comme premier algorithme, vous devez implémenter un algorithme de type
+« modification des bits les moins significatifs ». Ce type d’algorithme consiste
+simplement à remplacer les bits les moins significatifs de l’image à tatouer par
+
+les bits les plus significatifs d’une image servant de tatouage (ici, aucune clé
+n’est utilisée). Le nombre de bits à remplacer par composante doit être choisi de
+manière à ne pas dégrader la qualité du média (un utilisateur ne doit pas voir des
+différences perceptibles entre l’image originale et l’image modifiée).
+
+Figure 1 Exemple d'un tatouage de type « modification des bits les moins significatifs »
+avec un nombre de bits à remplacer par composante égale à 1.
+
+À faire :
+
+
+
+
+
+
+
+
+Implémenter l’algorithme (l’insertion et l’extraction) de type « modification
+des bits les moins significatifs » tel que décrit plus haut. L’utilisateur doit
+être en mesure, à l’aide d’une constante par exemple, de paramétrer le
+nombre de bits à remplacer par composante. Vous devez utiliser l’image
+lena.ppm à titre d’image originale et l’image ETS1.bmp à titre d’image
+tatou. Conseil : documentez-vous sur les fonctions getbit() et setbit() de
+Matlab.
+Répondre à la question suivante : à partir de combien de bits modifiés par
+composante l’utilisateur voit-il une différence perceptuelle entre l’image
+originale et l’image modifiée ? Inscrivez votre réponse (images à l’appui)
+dans le rapport.
+Appliquer quatre attaques (AT1, AT2, AT3, AT4), séparément, sur l’image.
+Pour chaque attaque :
+o Indiquer dans le rapport l’attaque appliquée et ses paramètres.
+o Copier l’image tatouée résultante de l’attaque.
+o Copier le tatou récupéré suite à l’attaque
+Discuter brièvement des caractéristiques (robustesse, bande-passante
+(taille maximale du tatou en bits), sécurité) de cet algorithme de tatouage
+numérique.
+
+Partie 2 – Implémentation de l’algorithme patchwork
+Comme second algorithme, vous devez implémenter l’algorithme patchwork [1],
+un algorithme statistique. L’idée principale de cet algorithme consiste à ajouter
+itérativement des « taches » (patch en anglais) sur l’image pour changer ses
+propriétés statistiques. À chaque itération, deux taches, une tache A et tache B,
+sont ajoutées aléatoirement. La tache A augmente l’intensité de la région tachée
+
+par une quantité égale à  , alors que la tache B réduit l’intensité de la région
+tachée par la même quantité  .
+Maintenant, voyons brièvement les propriétés statistiques de l’image avant
+l’application des taches. Soit n couples de points uniques (Ai, Bi), les mêmes
+points qui seront utilisés lors de l’application des taches. La différence de
+luminance entre l’ensemble des points Ai et des points Bi est représentée par
+l’équation suivante :
+n
+
+Sn   Ai  Bi
+i 1
+
+En supposant que les points Ai et les points Bi sont indépendants, la valeur
+espérée (moyenne) de Sn est alors égale à zéro1. Les auteurs de l’approche
+indiquent que l’écart type de Sn se calcule ainsi :
+Sn  n  104
+
+En supposant que Sn suit une distribution gaussienne, nous savons, par
+exemple, que la valeur réelle de Sn sera comprise entre -3  Sn et 3  Sn dans 99,8 %
+des cas. L’idée de l’approche patchwork est de modifier cette distribution, en
+appliquant des taches, pour créer une nouvelle distribution décalée suffisamment
+vers la droite pour ne pas interférer avec la distribution originale (distribution
+sans taches).
+
+Figure 2 L'augmentation des valeurs des paramètres
+la distribution vers la droite.
+
+ et n décale
+
+L’ajout de n taches – avec une modification de l’intensité égale à  – aura pour
+effet de décaler l’espérance (la moyenne) de cette distribution. La nouvelle
+espérance sera égale à :
+
+1
+
+Par analogie, si on lance n fois un dé A et n fois un dé B, la différence espérée (la moyenne)
+entre la somme des valeurs du dé A et la somme des valeurs du dé B sera égale à zéro.
+
+n
+
+S 'n   ( Ai  )  ( Bi  )  2n
+i 1
+
+Pour tatouer une image avec cette approche, vous devez :
+1. Utiliser une clé spécifique qui permettra de générer pseudo-aléatoirement
+n couples de taches uniques (Ai, Bi). Une clé spécifique doit toujours
+générer les mêmes couples. Autrement, vous ne serez pas en mesure de
+détecter le tatouage.
+2. Augmenter la luminance des taches Ai par une quantité  (généralement
+compris entre 1 et 5).
+3. Diminuer la luminance des taches Bi par la même quantité  utilisée à
+l’étape 2.
+Pour extraire (vérifier la présence de) la clé, vous devez :
+1. calculer la valeur de S’n en appliquant l’équation suivante sur l’image
+n
+
+tatouée : S 'n   Ai  Bi
+i 1
+
+2. Déterminer un seuil t, basé sur l’écart-type  Sn , qui sera utilisé pour tester
+S’n. Si S’n est supérieur à ce seuil, alors l’image sera considérée comme
+tatouée.
+Exemple :
+Nous voulons appliquer l’approche Patchwork sur une image en ton de gris avec
+les paramètres suivants :
+
+
+
+n = 10 000
+= 5
+
+Dans un premier temps, nous voulons trouver la distribution de Sn (distribution
+sans les taches appliquées). Pour ce faire, nous devons calculer l’écart type de
+Sn, soit S10000 :
+S10000  10000  104  10400
+
+Dans 99.8% des cas, les valeurs de la distribution de Sn seront comprises entre
+-31200, moins trois fois l’écart-type (10400x3), et 31200, trois fois l’écart-type.
+Cela veut dire que si nous retrouvons un S’n supérieur à 31200, nous pouvons,
+avec une certitude très élevée, conclure que l’image a été tatoué avec notre clé.
+Dans un second temps, nous voulons trouver la distribution de S’n (distribution
+avec les taches appliquées). Pour ce faire, nous devons calculer l’espérance S’n :
+
+S 'n  2n  2  5  10000  100000
+Et l’écart type :
+S10000  10000  104  10400
+
+Dans 99.8% des cas, les valeurs de la distribution de S’n seront comprises entre
+68800 et 131200. Les deux distributions sont suffisamment éloignées. Les
+paramètres sélectionnés pour l’application de patchwork permettront de bien
+détecter le tatouage.
+*Pour plus de détail sur cet algorithme, lisez la section « patchwork : A statistical
+approach « de l’article [1] (page 316 à 320)
+Lien pour accéder à cet article :
+http://www.cs.utsa.edu/~jortiz/CS4953/Papers/Techniques%20for%20Data%20H
+iding-p.pdf
+
+À faire :
+
+
+
+
+
+
+
+Implémenter l’algorithme (l’insertion et l’extraction) patchwork tel que
+décrit plus haut. Vous devez utiliser l’image lena.ppm à titre d’image
+originale et utiliser une clé pour générer pseudo-aléatoirement 10 000
+couples (n=10000) de taches uniques (Ai, Bi).
+Trouver un  offrant un bon compromis entre la préservation de la qualité
+et l’efficacité du tatouage (distance suffisante entre les deux distributions).
+Appliquer les quatre mêmes attaques (AT1, AT2, AT3, AT4) que
+précédemment sur l’image. Pour chaque attaque :
+o Indiquer dans le rapport l’attaque appliquée et ses paramètres
+o Copier l’image tatouée résultante de l’attaque.
+o Indiquer si l’attaque a réussie à corrompe ou pas le tatou.
+Discuter brièvement des caractéristiques (robustesse, bande-passante
+(taille maximale du tatou en bits), sécurité) de cet algorithme de tatouage
+numérique.
+
+Partie 3 – Implémentation de l’algorithme NEC
+Comme troisième algorithme, vous devez implémenter l’algorithme NEC [2], un
+algorithme appliqué dans le domaine fréquentiel. L’idée principale de cet
+algorithme est de générer une clé aléatoire w composée de n échantillons et
+respectant une distribution normale ayant pour moyenne 0 et pour écart-type 1
+(N(0,1)) (voir la fonction randn de MATLAB). – ALTERNATIF 1: Pour ce
+laboratoire, vous pouvez aussi créer une clé ayant une distribution uniforme
+entre -1 et 1 (voir la fonction rand de MATLAB). ALTERNATIF 2 : Enfin, vous
+pouvez aussi créer une clé contenant autant de -1 que de 1 (voir la fonction
+
+randperm qui permet de permuter un vecteur d’indice). – Puis d’insérer cette clé,
+après l’application de la DCT, dans les n coefficients ayant les amplitudes les
+plus élevées. Pour ce faire, vous devez appliquer la formule suivante :
+
+ x (1  wi ),
+yi   i
+xi ,
+
+
+si xi est un coefficient AC parmi les n ayant la plus haute amplitude
+sinon
+
+où x représente le signal orignal après l’application de la DCT, y représente le
+signal tatoué par la méthode NEC avant l’application de l’IDCT. Contrairement à
+la compression JPEG, qui applique la DCT sur des blocs 8x8, la DCT de la
+méthode NEC doit être appliquée sur l’image entière. Pour le laboratoire, vous
+pouvez l’appliquer sur une seule composante (plan), par exemple, la
+composante rouge. Dans cette équation, la valeur de la constante  influence
+l’intensité à laquelle le tatouage est imprégné dans l’image. Si cette valeur est
+trop haute, l’insertion du tatouage introduira un bruit perceptible dans l’image. Si,
+au contraire, cette valeur est trop basse, le tatouage pourrait être difficilement
+récupérable et être davantage sensible aux attaques. Pour ce laboratoire, fixer 
+à 0.1. (Vous pouvez expérimenter avec d’autres valeurs.) Une fois les y calculés,
+vous devez appliquer l’IDCT pour obtenir l’image tatouée.
+Pour extraire (vérifier la présence de) la clé, vous devez récupérer, après
+l’application de la DCT sur l’image tatouée, les mêmes n coefficients que ceux
+modifiés dans l’image originale. (Vous devez utiliser exactement les mêmes
+coefficients et dans le même ordre que ceux employés lors du tatouage. Pour ce
+faire, vous pouvez simplement enregistrer un vecteur contenant dans l’ordre
+l’index des n coefficients ayant l’amplitude la plus élevée.) Puis vous devez
+extraire la clé w*, cette clé, qu’on compara plus tard avec la clé originale, se
+trouve en appliquant l’équation suivante :
+
+wi* 
+
+y 'i  xi
+xi
+
+où y’ représente les n coefficients extraits de l’image tatouée, x les n coefficients
+originaux (non tatoués) de l’image originale. Une fois cette clé extraite, vous
+devez calculez la similitude entre celle-ci et la clé originale w en appliquant une
+corrélation normalisée représente comme suit :
+N
+
+Sim 
+
+w  w*
+w w
+*
+
+*
+
+
+
+w w
+i 1
+
+*
+i
+
+i
+
+N
+
+w
+i 1
+
+*
+i
+
+ wi*
+
+Si le résultat de la fonction sim est plus grand qu’un seuil T, alors la clé est
+considérée comme présente dans l’image.
+
+*Pour plus de détail sur cet algorithme, lisez l’article [2]. La section 3 décrit plus
+en détail le fonctionnement de l’algorithme.
+
+Lien pour accéder à cet article :
+http://www.springerlink.com/content/y5521tn7h1672138/
+
+À faire :
+
+
+
+
+
+
+
+Implémenter l’algorithme (l’insertion et l’extraction) NEC tel que décrit plus
+haut. Vous devez utiliser l’image lena.ppm à titre d’image originale et
+utiliser une clé de 100 valeurs (l’équivalent de 100 bits, si vous utilisez une
+clé composée de -1 et de 1). Indiquez dans votre rapport le type de
+distribution utilisé.
+Déterminer un seuil T convenable.
+Appliquer les quatre mêmes attaques (AT1, AT2, AT3, AT4) que
+précédemment sur l’image. Pour chaque attaque :
+o Indiquez dans le rapport l’attaque appliquée et ses paramètres
+o Copiez l’image tatouée résultante de l’attaque.
+o Indiquez si l’attaque a réussie à corrompe ou pas le tatou.
+Discuter brièvement des caractéristiques (robustesse, bande-passante
+(taille maximale du tatou en bits), sécurité) de cet algorithme de tatouage
+numérique.
+
+Partie 4
+En une dizaine de lignes et plus, vous devez comparer les trois approches
+implémentées. Vous pouvez notamment aborder les thèmes suivants :
+robustesse, bande-passante, impacts sur la qualité, applications, etc.
+
+À remettre
+
+
+
+Une copie électronique (.doc ou .docx) de votre rapport de laboratoire
+contenant les réponses aux questions et les graphiques produits.
+Une copie électronique du code MATLAB (fichiers .m) produit pour
+chacune des trois premières parties ainsi que pour les 4 attaques. De
+plus, afin de faciliter la correction, vous devez fournir un script Matlab (un
+.m) permettant de reproduire vos résultats (tatouages avec les différentes
+méthodes, application des attaques, extraction des tatouages, etc.).
+
+Critères d’évaluation :
+
+
+
+
+
+
+
+Implémentation du premier algorithme* :
+Implémentation du second algorithme* :
+Implémentation du troisième algorithme* :
+Implémentation des cas d’attaques :
+Application et analyse des attaques :
+Comparaison des approches :
+
+20 points
+25 points
+25 points
+10 points
+12 points
+8 points
+
+*Inclus les réponses aux questions relatives à ces algorithmes.
+
+Date de remise
+Au plus tard le mercredi 1 novembre 2017 à 17h30 sur le site Moodle du cours.
+
+Pénalité de retard
+Les dates de remises des travaux doivent être respectées. Une pénalité de 10 %
+par jour ouvrable sera appliquée aux travaux qui ne sont pas remis à temps.
+
+Plagiat et fraude
+Les clauses du « Chapitre 10 : Plagiat et fraude » du « Règlement des études de
+1er cycle » s’appliquent dans ce cours ainsi que dans tous les cours du
+département de génie logiciel et des TI.
+
+Références
+[1] Bender, W, D Gruhl, N Morimoto et A Lu. 1996. « Techniques for data hiding
+». IBM systems journal, vol. 35, no 3/4, p. 313-336.
+[2] Cox, I, J Kilian, T Leighton et T Shamoon. 1996. « A secure, robust
+watermark for multimedia ». In., p. 185-206. Springer.
+
+
