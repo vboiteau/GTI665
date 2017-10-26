@@ -34,7 +34,7 @@ function [NECChannel, coefficients] = applyNECOnChannel(channel, width, height)
     w = rand(width, height);
     for x = 1:width
         for y = 1:height
-            if (w(x,y) > 0.9)
+            if (w(x,y) > 0.8)
                 coefficients(x,y) = (1 + 0.1 * w(x,y));
                 
             else
