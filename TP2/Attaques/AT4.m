@@ -1,11 +1,11 @@
 path_array = strsplit(mfilename('fullpath'), '/');
 basePath = strjoin(path_array(1:length(path_array) - 1), '/');
-INPUT_PATH = sprintf('%s/../Media/spatial_output3.bmp', basePath);
-mkdir(sprintf('%s/../Media/output/attaques/AT4', basePath));
+INPUT_PATH = sprintf('%s/../Patchwork/patchwork.ppm', basePath);
+mkdir(sprintf('%s/../Media/output/attaques/patchwork/AT4', basePath));
 mkdir(sprintf('%s/../Media/tmp/', basePath));
-OUTPUT_PATH = sprintf('%s/../Media/output/attaques/AT4/spatial_output3.bmp', basePath);
+OUTPUT_PATH = sprintf('%s/../Media/output/attaques/patchwork/AT4/patchworkAT4.bmp', basePath);
 original = imread(INPUT_PATH);
-[width, height, color] = size(image);
+[width, height, color] = size(original);
 newWidth = width * 0.75;
 newHeight = height * 0.75;
 newX = (width - newWidth) / 2;
