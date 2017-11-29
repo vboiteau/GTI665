@@ -7,7 +7,6 @@ window = hamming(180);
 %disp("Chunks: "+length(chunks));
 
 fileID = fopen('man.LPC','w');
-fprintf(fileID,'c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,gain,isVoiced,pitch\n');
 
 doit = 1;
 for i = 1:length(chunks)

@@ -9,5 +9,4 @@ function isVoiced = detectVoiced(chunk)
     end
     zcr = passesTroughZero / 180;
     isVoiced = zcr < 0.135;
-    %disp([zcr passesTroughZero isVoiced]);
 end
