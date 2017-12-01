@@ -1,3 +1,4 @@
+clear;
 input = './Medias/wav/man.wav';
 %input = './Medias/wav/woman.wav';
 info = audioinfo(input);
@@ -22,7 +23,7 @@ for i = 1:length(chunks)
         
         weightedChunk = chunk.*transpose(window);
             
-        filteredChunk = conv(weightedChunk,1-0.9375);
+        filteredChunk = conv(weightedChunk,[1,-0.9375]);
 
         [AR,E,K] = lpcauto(filteredChunk,10,180);
         gain = sqrt(E);
